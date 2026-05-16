@@ -20,6 +20,44 @@ Sonic Skills is a curated pack of Markdown skills for reviewing, debugging, expl
 
 ## How To Use
 
+Download the latest `main` branch zip from GitHub and install into `~/.codex/skills`:
+
+```sh
+tmp_dir=$(mktemp -d) && curl -L https://github.com/kunitoki/sonic-skills/archive/refs/heads/main.zip -o "$tmp_dir/sonic-skills.zip" && unzip -q "$tmp_dir/sonic-skills.zip" -d "$tmp_dir" && sh "$tmp_dir/sonic-skills-main/bootstrap" install all
+```
+
+Install all skills into your local agent skill directory:
+
+```sh
+./bootstrap install codex
+```
+
+or:
+
+```sh
+./bootstrap install claude
+```
+
+Use `all` to install into both `~/.codex/skills` and `~/.claude/skills`:
+
+```sh
+./bootstrap install all
+```
+
+Uninstall removes only the Sonic Skills directories managed by this repository:
+
+```sh
+./bootstrap uninstall codex
+./bootstrap uninstall claude
+./bootstrap uninstall all
+```
+
+If a destination skill directory already exists and was not created by this bootstrap script, install stops instead of overwriting it. Use `--force` when you intentionally want to replace an existing directory:
+
+```sh
+./bootstrap install codex --force
+```
+
 Point your agent at this repository and ask for the skill by name, or describe the task naturally.
 
 Examples:

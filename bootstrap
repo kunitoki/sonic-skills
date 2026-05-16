@@ -1,0 +1,215 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ./bootstrap install [codex|claude|all] [--force]
+  ./bootstrap uninstall [codex|claude|all]
+  ./bootstrap list
+
+Targets:
+  codex   ~/.codex/skills
+  claude  ~/.claude/skills
+  all     both targets
+
+Examples:
+  ./bootstrap install codex
+  ./bootstrap install all
+  ./bootstrap install claude --force
+  ./bootstrap uninstall claude
+EOF
+}
+
+die() {
+  printf 'error: %s\n' "$1" >&2
+  exit 1
+}
+
+repo_root() {
+  script_dir=$(dirname "$0")
+  (CDPATH= cd "$script_dir" && pwd)
+}
+
+target_dir() {
+  case "$1" in
+    codex) printf '%s\n' "$HOME/.codex/skills" ;;
+    claude) printf '%s\n' "$HOME/.claude/skills" ;;
+    *) die "unknown target '$1'" ;;
+  esac
+}
+
+skill_names() {
+  root=$1
+  for skill_dir in "$root"/skills/*; do
+    [ -d "$skill_dir" ] || continue
+    basename "$skill_dir"
+  done | sort
+}
+
+marker_file() {
+  printf '.sonic-skills-installed\n'
+}
+
+is_managed_install() {
+  path=$1
+  [ -f "$path/$(marker_file)" ]
+}
+
+copy_skill() {
+  root=$1
+  skill=$2
+  destination=$3
+  force=$4
+  installed_path=$destination/$skill
+
+  mkdir -p "$destination"
+  if [ -e "$installed_path" ] || [ -L "$installed_path" ]; then
+    if [ "$force" != "1" ] && ! is_managed_install "$installed_path"; then
+      die "$installed_path already exists and was not installed by this bootstrap script; rerun with --force to replace it"
+    fi
+    rm -rf "$installed_path"
+  fi
+
+  cp -R "$root/skills/$skill" "$installed_path"
+  printf 'source=%s\nskill=%s\n' "$root" "$skill" > "$installed_path/$(marker_file)"
+}
+
+preflight_install_target() {
+  root=$1
+  target=$2
+  force=$3
+
+  if [ "$force" = "1" ]; then
+    return 0
+  fi
+
+  destination=$(target_dir "$target")
+  failed=0
+  for skill_dir in "$root"/skills/*; do
+    [ -d "$skill_dir" ] || continue
+    skill=$(basename "$skill_dir")
+    installed_path=$destination/$skill
+    if [ -e "$installed_path" ] || [ -L "$installed_path" ]; then
+      if ! is_managed_install "$installed_path"; then
+        printf 'error: %s already exists and was not installed by this bootstrap script\n' "$installed_path" >&2
+        failed=1
+      fi
+    fi
+  done
+
+  if [ "$failed" = "1" ]; then
+    die "rerun with --force to replace unmanaged destination directories"
+  fi
+}
+
+install_target() {
+  root=$1
+  target=$2
+  force=$3
+
+  preflight_install_target "$root" "$target" "$force"
+
+  destination=$(target_dir "$target")
+  count=0
+  for skill_dir in "$root"/skills/*; do
+    [ -d "$skill_dir" ] || continue
+    skill=$(basename "$skill_dir")
+    copy_skill "$root" "$skill" "$destination" "$force"
+    count=$((count + 1))
+  done
+
+  printf 'Installed %d skills into %s\n' "$count" "$destination"
+}
+
+uninstall_target() {
+  root=$1
+  target=$2
+
+  destination=$(target_dir "$target")
+  count=0
+  for skill_dir in "$root"/skills/*; do
+    [ -d "$skill_dir" ] || continue
+    skill=$(basename "$skill_dir")
+    if [ -e "$destination/$skill" ] || [ -L "$destination/$skill" ]; then
+      if is_managed_install "$destination/$skill"; then
+        rm -rf "$destination/$skill"
+        count=$((count + 1))
+      else
+        printf 'Skipped unmanaged skill %s\n' "$destination/$skill" >&2
+      fi
+    fi
+  done
+
+  printf 'Removed %d skills from %s\n' "$count" "$destination"
+}
+
+list_skills() {
+  root=$1
+  skill_names "$root"
+}
+
+main() {
+  command=${1:-}
+  target=codex
+  force=0
+
+  if [ "$#" -gt 0 ]; then
+    shift
+  fi
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      codex|claude|all)
+        target="$1"
+        ;;
+      --force)
+        force=1
+        ;;
+      *)
+        usage >&2
+        die "unknown argument '$1'"
+        ;;
+    esac
+    shift
+  done
+
+  root=$(repo_root)
+
+  case "$command" in
+    install)
+      case "$target" in
+        all)
+          install_target "$root" codex "$force"
+          install_target "$root" claude "$force"
+          ;;
+        *)
+          install_target "$root" "$target" "$force"
+          ;;
+      esac
+      ;;
+    uninstall)
+      case "$target" in
+        all)
+          uninstall_target "$root" codex
+          uninstall_target "$root" claude
+          ;;
+        *)
+          uninstall_target "$root" "$target"
+          ;;
+      esac
+      ;;
+    list)
+      list_skills "$root"
+      ;;
+    -h|--help|help|'')
+      usage
+      ;;
+    *)
+      usage >&2
+      die "unknown command '$command'"
+      ;;
+  esac
+}
+
+main "$@"
