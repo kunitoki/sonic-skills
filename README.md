@@ -25,19 +25,19 @@ Point your agent at this repository and ask for the skill by name, or describe t
 Examples:
 
 ```text
-Use audio-dsp-review to check this processBlock for realtime safety.
+/audio-dsp-review inspect the current project
 ```
 
 ```text
-Use webaudio-review: why does this AudioWorklet crackle under load?
+/webaudio-review why does this AudioWorklet crackle under load?
 ```
 
 ```text
-Use dsp-algorithm-guide to implement a stable state variable lowpass filter.
+/dsp-algorithm-guide implement a stable state variable lowpass filter
 ```
 
 ```text
-Review this CLAP plugin's process() and params extension.
+/clap-review inspect this CLAP plugin's process() and params extension
 ```
 
 Skills are designed to compose. A VST3 review, for example, should usually start with `audio-dsp-review` and `audio-numerics-review`, then add `vst3-review` for format-specific contracts.
