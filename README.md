@@ -14,7 +14,7 @@ Sonic Skills is a curated pack of Markdown skills for reviewing, debugging, expl
 | Debugging and explanation | `audio-artifacts-debug`, `audio-signal-flow-explainer`, `audio-math-explainer` | Clicks, aliasing, DC offset, routing diagrams, DSP intuition |
 | DSP implementation | `dsp-algorithm-guide` | Biquads, SVFs, compressors, FDN reverbs, FFT convolution, phase vocoders, PolyBLEP |
 | Plugin formats | `vst3-review`, `clap-review`, `au-review` | Spec compliance, host contracts, parameter/state handling, render-thread rules |
-| Frameworks | `juce-guide`, `juce-review` | JUCE plugin setup, APVTS usage, MessageManager boundaries, MIDI and buffer safety |
+| Frameworks | `juce-guide`, `juce-review`, `yup-guide`, `yup-review` | JUCE and YUP plugin setup, parameters, UI/thread boundaries, MIDI and buffer safety |
 | Web audio | `webaudio-guide`, `webaudio-review` | AudioWorklet processors, graph construction, automation, WebMIDI, browser constraints |
 | Game audio | `game-audio-guide`, `game-audio-review` | Wwise/FMOD DSP plugins, middleware allocators, RTPC/parameter patterns, engine thread safety |
 
@@ -55,6 +55,8 @@ Skills are designed to compose. A VST3 review, for example, should usually start
 | [`dsp-algorithm-guide`](skills/dsp-algorithm-guide/SKILL.md) | Guides implementation and verification of common DSP blocks. |
 | [`juce-guide`](skills/juce-guide/SKILL.md) | Walks through building a JUCE plugin with CMake, APVTS, UI, state, and packaging. |
 | [`juce-review`](skills/juce-review/SKILL.md) | Reviews JUCE-specific thread boundaries, APVTS, ValueTree, MessageManager, MIDI, and buffers. |
+| [`yup-guide`](skills/yup-guide/SKILL.md) | Walks through building a YUP plugin with `yup_audio_plugin`, `AudioProcessor`, `AudioParameterHandle`, UI, state, and packaging. |
+| [`yup-review`](skills/yup-review/SKILL.md) | Reviews YUP-specific processor lifecycle, parameter handles, editor gestures, bus layout, state recall, and wrapper contracts. |
 | [`vst3-review`](skills/vst3-review/SKILL.md) | Reviews VST3 bus negotiation, processor/controller separation, parameters, state, latency, and tail behavior. |
 | [`clap-review`](skills/clap-review/SKILL.md) | Reviews CLAP threading tags, event lifetime, params/state extensions, ports, and process status. |
 | [`au-review`](skills/au-review/SKILL.md) | Reviews AUv2/AUv3 render blocks, properties, parameters, tail time, sandboxing, and `auval` readiness. |
